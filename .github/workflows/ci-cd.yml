@@ -1,4 +1,4 @@
-name: CI — Build, Test, SonarQube, Docker → GHCR
+name: CI — Build, Test, SonarQube, Docker → GHCR   #entry
 
 on:
   push:
