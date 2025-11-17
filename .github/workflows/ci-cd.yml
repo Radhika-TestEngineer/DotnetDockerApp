@@ -41,6 +41,9 @@ jobs:
       - name: Install SonarScanner
         run: dotnet tool install --global dotnet-sonarscanner
 
+      # -------------------------
+      # ✅ FIXED SONARQUBE BEGIN
+      # -------------------------
       - name: SonarQube Begin
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -48,20 +51,26 @@ jobs:
         run: |
           export PATH="$PATH:/home/runner/.dotnet/tools"
           dotnet sonarscanner begin \
-            /k:"${{ github.repository }}" \
-            /d:sonar.login="$SONAR_TOKEN" \
+            /k:"${{ github.repository_owner }}_${{ github.event.repository.name }}" \
+            /n:"${{ github.event.repository.name }}" \
             /d:sonar.host.url="$SONAR_HOST_URL" \
+            /d:sonar.login="$SONAR_TOKEN" \
             /d:sonar.cs.opencover.reportsPaths="**/coverage.cobertura.xml"
+      # -------------------------
 
+      # -------------------------
+      # FIXED test project name
+      # -------------------------
       - name: Run Tests with Coverage (Coverlet)
         id: coverage
         run: |
-          dotnet test ./MyApp.tests/Mypp.tests.csproj \
+          dotnet test ./MyApp.tests/MyApp.tests.csproj \
             --collect:"XPlat Code Coverage" \
             --results-directory ./TestResults
 
           REPORT=$(find ./TestResults -name 'coverage.cobertura.xml' | head -n 1)
           echo "path=$REPORT" >> $GITHUB_OUTPUT
+      # -------------------------
 
       - name: SonarQube End
         env:
@@ -75,7 +84,6 @@ jobs:
         with:
           name: coverage-report
           path: ${{ steps.coverage.outputs.path }}
-
 
   docker:
     needs: build-and-test
