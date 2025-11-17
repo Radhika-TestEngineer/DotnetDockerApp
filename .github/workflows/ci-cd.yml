@@ -1,3 +1,84 @@
+name: CI — Build, Test, SonarQube, Docker → GHCR
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+env:
+  DOTNET_VERSION: '8.0'
+  IMAGE_NAME: myapp
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    outputs:
+      coverage-path: ${{ steps.coverage.outputs.path }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore ./MyApp/MyApp.csproj
+
+      - name: Build project
+        run: dotnet build ./MyApp/MyApp.csproj --configuration Release --no-restore
+
+      - name: Install SonarScanner
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      # -------------------------
+      # ✅ FIXED SONARQUBE BEGIN
+      # -------------------------
+      - name: SonarQube Begin
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          export PATH="$PATH:/home/runner/.dotnet/tools"
+          dotnet sonarscanner begin \
+            /o:"radhika-testengineer" \
+            /k:"${{ github.repository_owner }}_${{ github.event.repository.name }}" \
+            /n:"${{ github.event.repository.name }}" \
+            /d:sonar.host.url="$SONAR_HOST_URL" \
+            /d:sonar.login="$SONAR_TOKEN" \
+            /d:sonar.cs.opencover.reportsPaths="**/coverage.cobertura.xml"
+      # -------------------------
+
+      - name: Run Tests with Coverage (Coverlet)
+        id: coverage
+        run: |
+          dotnet test ./MyApp.tests/MyApp.tests.csproj \
+            --collect:"XPlat Code Coverage" \
+            --results-directory ./TestResults
+          REPORT=$(find ./TestResults -name 'coverage.cobertura.xml' | head -n 1)
+          echo "path=$REPORT" >> $GITHUB_OUTPUT
+      - name: SonarQube End
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          export PATH="$PATH:/home/runner/.dotnet/tools"
+          dotnet sonarscanner end /d:sonar.login="$SONAR_TOKEN"
+      - name: Upload Coverage Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: ${{ steps.coverage.outputs.path }}
+
   docker:
     needs: build-and-test
     runs-on: ubuntu-latest
@@ -26,5 +107,5 @@
           file: ./myapp/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner,, }}/myapp:${{ env.IMAGE_TAG }}
-            ghcr.io/${{ github.repository_owner,, }}/myapp:latest
+            ghcr.io/${{ github.repository_owner,, }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+            ghcr.io/${{ github.repository_owner,, }}/${{ env.IMAGE_NAME }}:latest
