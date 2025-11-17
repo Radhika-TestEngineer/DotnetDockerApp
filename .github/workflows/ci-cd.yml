@@ -107,5 +107,5 @@ jobs:
           file: ./myapp/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner,, }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
-            ghcr.io/${{ github.repository_owner,, }}/myapp:latest
+            ghcr.io/${{ github.repository_owner | lower }}/myapp:${{ env.IMAGE_TAG }}
+            ghcr.io/${{ github.repository_owner | lower }}/myapp:latest
