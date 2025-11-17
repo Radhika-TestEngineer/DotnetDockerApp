@@ -33,7 +33,7 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore dependencies
-        run: dotnet restore ./MyApp/myapp.csproj
+        run: dotnet restore ./MyApp/MyApp.csproj
 
       - name: Build project
         run: dotnet build ./MyApp/MyApp.csproj --configuration Release --no-restore
