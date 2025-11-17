@@ -33,10 +33,10 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore dependencies
-        run: dotnet restore ./myapp/myapp.csproj
+        run: dotnet restore ./MyApp/myapp.csproj
 
       - name: Build project
-        run: dotnet build ./myapp/myapp.csproj --configuration Release --no-restore
+        run: dotnet build ./MyApp/MyApp.csproj --configuration Release --no-restore
 
       - name: Install SonarScanner
         run: dotnet tool install --global dotnet-sonarscanner
@@ -56,7 +56,7 @@ jobs:
       - name: Run Tests with Coverage (Coverlet)
         id: coverage
         run: |
-          dotnet test ./myapp.tests/myapp.tests.csproj \
+          dotnet test ./MyApp.tests/Mypp.tests.csproj \
             --collect:"XPlat Code Coverage" \
             --results-directory ./TestResults
 
