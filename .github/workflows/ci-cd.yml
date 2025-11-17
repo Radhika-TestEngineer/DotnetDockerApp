@@ -106,8 +106,8 @@ jobs:
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v4
         with:
-          context: ./myapp
-          file: ./myapp/Dockerfile
+          context: ./MyApp
+          file: ./MyApp/Dockerfile
           push: true
           tags: |
             ghcr.io/${{ steps.vars.outputs.owner_lower }}/myapp:${{ env.IMAGE_TAG }}
