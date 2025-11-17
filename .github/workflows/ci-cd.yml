@@ -44,18 +44,21 @@ jobs:
       # -------------------------
       # ✅ FIXED SONARQUBE BEGIN
       # -------------------------
-      - name: SonarQube Begin
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-        run: |
-          export PATH="$PATH:/home/runner/.dotnet/tools"
-          dotnet sonarscanner begin \
-            /k:"${{ github.repository_owner }}_${{ github.event.repository.name }}" \
-            /n:"${{ github.event.repository.name }}" \
-            /d:sonar.host.url="$SONAR_HOST_URL" \
-            /d:sonar.login="$SONAR_TOKEN" \
-            /d:sonar.cs.opencover.reportsPaths="**/coverage.cobertura.xml"
+     - name: SonarQube Begin
+       env:
+         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+         SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+         SONAR_ORG: ${{ secrets.SONAR_ORG }}
+       run: |
+         export PATH="$PATH:/home/runner/.dotnet/tools"
+         dotnet sonarscanner begin \
+           /o:"$SONAR_ORG" \
+           /k:"${{ github.repository_owner }}_${{ github.event.repository.name }}" \
+           /n:"${{ github.event.repository.name }}" \
+           /d:sonar.host.url="$SONAR_HOST_URL" \
+           /d:sonar.login="$SONAR_TOKEN" \
+           /d:sonar.cs.opencover.reportsPaths="**/coverage.cobertura.xml"
+
       # -------------------------
 
       # -------------------------
