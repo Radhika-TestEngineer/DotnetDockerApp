@@ -1,20 +1,29 @@
-# syntax=docker/dockerfile:1
-
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-WORKDIR /app
+# 1️⃣ Build stage
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+
 WORKDIR /src
+ 
+# Copy only the csproj first (best practice)
 
-# Copy only the project files first (better layer caching)
-COPY MyApp/*.csproj MyApp/
-RUN dotnet restore MyApp/MyApp.csproj
+COPY MyApp.csproj ./
 
-# Copy the rest of the app source
-COPY MyApp/. MyApp/
-RUN dotnet publish MyApp/MyApp.csproj -c Release -o /app
+RUN dotnet restore
+ 
+# Copy rest of the code
 
-FROM base AS final
+COPY . ./
+
+RUN dotnet publish -c Release -o /app
+ 
+# 2️⃣ Runtime stage
+
+FROM mcr.microsoft.com/dotnet/runtime:8.0
+
 WORKDIR /app
-COPY --from=build /app .
+
+COPY --from=build /app ./
+ 
 ENTRYPOINT ["dotnet", "MyApp.dll"]
+
+ 
