@@ -6,7 +6,7 @@ WORKDIR /src
  
 # Copy only the csproj first (best practice)
 
-COPY MyApp/MyApp.csproj ./
+COPY MyApp.csproj ./
 
 
 RUN dotnet restore
