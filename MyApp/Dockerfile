@@ -4,7 +4,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy only the csproj first
-COPY *.csproj ./
+COPY MyApp.csproj .
 
 RUN dotnet restore
 
