@@ -4,14 +4,18 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
 # Copy only this project's files
-COPY MyApp.csproj ./
+#COPY MyApp.csproj ./
 
-RUN dotnet restore
+#RUN dotnet restore
 
 # Copy all source code (now inside MyApp folder)
-COPY . .
+#COPY . .
 
-RUN dotnet publish -c Release -o /app/publish
+#RUN dotnet publish -c Release -o /app/publish
+
+COPY . .
+RUN dotnet restore MyApp/MyApp.csproj
+RUN dotnet publish MyApp/MyApp.csproj -c Release -o /app
 
 # 2️⃣ Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
